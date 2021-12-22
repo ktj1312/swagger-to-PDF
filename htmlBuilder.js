@@ -1,7 +1,10 @@
-const FONT_STYLE = 'font-family: "Helvetica Neue",Trebuchet MS, sans-serif;font-size: 12px;color: #444';
+const FONT_STYLE = 'font-family: "Noto Sans KR", sans-serif;font-size: 13px;color: #444';
 
 function getStyling(customCss) {
     return `<style>
+
+        @import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
         /* styling for looks */
         body {
             ${FONT_STYLE}
@@ -31,6 +34,11 @@ function getStyling(customCss) {
             text-align:left;
         }
         .table-margin {
+            width:100%;
+            font-size:100%;
+            margin-top:0px;
+        }
+        .table-style2 {
             width:100%;
             font-size:100%;
             margin-top:0px;
@@ -104,7 +112,7 @@ function getStyling(customCss) {
             padding-top:4px;
             padding-bottom:4px;
             padding-right:0px;
-            padding-left:0px;
+            padding-left:10px;
         }
         .page {
             page-break-after:always;
@@ -166,6 +174,9 @@ function getStyling(customCss) {
             counter-increment: h2counter;
             counter-reset: h3counter;
         }
+        h2 {
+            counter-reset: h3counter;
+        }
         h3:before {
             content: counter(h2counter) "." counter(h3counter) ". ";
             counter-increment: h3counter;
@@ -178,11 +189,11 @@ function getStyling(customCss) {
 
         li { 
             display: block;
-            font-size:12px; 
+            font-size:13px; 
         }
         ul>li{ 
             margin-left:1em;
-            font-size:13px;
+            font-size:14px;
         }
         ol { counter-reset: item; }
         ol li:before { 
@@ -190,7 +201,7 @@ function getStyling(customCss) {
             counter-increment: item;
             margin-right:1em;
             display:inline-block;
-            width:2em;
+            /*width:2em;*/
         }
     </style>
     <style>
@@ -411,7 +422,7 @@ function getPathSpecifications(swaggerJSON) {
                         html += "           <td class='td-alignment-std'>";
 
                         if (typeof path.spec.parameters !== 'undefined') {
-                            html += "<table class='table-margin'>";
+                            html += "<table class='table-margin table-style2'>";
                             html += '   <thead>';
                             html += '     <tr>';
                             html += "       <td class='small-heading'>Name</td>";
@@ -628,7 +639,7 @@ function getPathSpecifications(swaggerJSON) {
                         html += '    </tr>';
                         html += '</table></div>'; //TABLE FOR PATH END
                         return `<div style="page-break-inside:avoid;">
-                                <h3 id="${path.action}${path.path}" class="${path.action}"><code class="huge"><span>${
+                                <h3 id="${path.action}${path.path}" class="${path.action}"><span>${
                             path.action
                         }</span>${path.path}</h3> 
                                 ${html}
