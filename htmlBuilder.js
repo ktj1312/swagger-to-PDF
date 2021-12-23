@@ -1,10 +1,7 @@
-const FONT_STYLE = 'font-family: "Noto Sans KR", sans-serif;font-size: 13px;color: #444';
+const FONT_STYLE = 'font-family: "Helvetica Neue",Trebuchet MS, sans-serif;font-size: 12px;color: #444';
 
 function getStyling(customCss) {
     return `<style>
-
-        @import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
-
         /* styling for looks */
         body {
             ${FONT_STYLE}
