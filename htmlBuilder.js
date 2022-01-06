@@ -23,12 +23,19 @@ function getStyling(customCss) {
             color: #555;
         }
         .th-heading {
-            width:30%;
+            width:20%;
+            text-align:left;
+        }
+        .th-heading-md {
+            width:15%;
             text-align:left;
         }
         .th-heading-small {
             width:10%;
             text-align:left;
+        }
+        .th-heading-px {
+            width:20px;
         }
         .table-margin {
             width:100%;
@@ -659,6 +666,139 @@ function renderDefinition(minimal, dfn, swaggerJSONdefinitions) {
     <table class='table-margin'>
        <thead>
         <tr>
+               <th class='th-heading-md'><b>Name</b></td>
+               <th class='th-heading-small'><b>Type</b></td>
+               ${minimal ? '' : "           <th class='th-heading'><b>Description</b></td>"}
+               <th class='th-heading-small'><b>Required</b></td>
+               <th class='th-heading-small'><b>Min</b></td>
+               <th class='th-heading-small'><b>Max</b></td>
+               <th class='th-heading-px'><b>enum</b></td>
+               <th class='th-heading-px'><b>pattern</b></td>
+           </tr>
+       </thead>
+       <tbody>`;
+
+    if (swaggerJSONdefinitions[dfn].type === 'array') {
+        html += "    <tr class='alternate-row'>";
+        html += "           <td class='th-heading'></td>";
+        html += "           <td class='th-heading-small'>array</td>";
+        if (!minimal) {
+            let description;
+            if (typeof swaggerJSONdefinitions[dfn]['$ref'] !== 'undefined') {
+                const items = swaggerJSONdefinitions[dfn]['$ref'].split('/');
+                const subdfn = items[items.length - 1];
+                description = `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+            } else if (typeof swaggerJSONdefinitions[dfn]['items'] !== 'undefined') {
+                if (typeof swaggerJSONdefinitions[dfn]['items'] === 'string') {
+                    const items = swaggerJSONdefinitions[dfn]['items'].split('/');
+                    const subdfn = items[items.length - 1];
+                    description = `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+                } else if (typeof swaggerJSONdefinitions[dfn]['items'] === 'object') {
+                    if (typeof swaggerJSONdefinitions[dfn]['items']['$ref'] !== 'undefined') {
+                        const items = swaggerJSONdefinitions[dfn]['items']['$ref'].split('/');
+                        const subdfn = items[items.length - 1];
+                        description = `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+                    }
+                }
+            }
+            html += `           <td class='th-heading'>${description}</td>`;
+        }
+        html += "           <td class='th-heading'>yes</td>";
+        html += '       </tr>';
+    } else {
+        let index = 0;
+        for (let dfnProps in swaggerJSONdefinitions[dfn].properties) {
+            // eg: product_id
+            html += `   <tr ${index % 2 == 0 ? 'class="alternate-row"' : ''}>`;
+            html += "       <td style='width:5%;'>" + dfnProps + '</td>';
+            if (swaggerJSONdefinitions[dfn].properties[dfnProps] != null) {
+                html +=
+                    "       <td>" +
+                    (typeof swaggerJSONdefinitions[dfn].properties[dfnProps].type !== 'undefined'
+                        ? swaggerJSONdefinitions[dfn].properties[dfnProps].type
+                        : '') +
+                    '</td>';
+                if (!minimal) {
+                    html += "       <td>";
+
+                    if (typeof swaggerJSONdefinitions[dfn].properties[dfnProps]['$ref'] !== 'undefined') {
+                        let items = swaggerJSONdefinitions[dfn].properties[dfnProps]['$ref'].split('/');
+                        let subdfn = items[items.length - 1];
+                        html += `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+                    } else if (typeof swaggerJSONdefinitions[dfn].properties[dfnProps]['items'] !== 'undefined') {
+                        if (typeof swaggerJSONdefinitions[dfn].properties[dfnProps]['items'] === 'string') {
+                            let items = swaggerJSONdefinitions[dfn].properties[dfnProps]['items'].split('/');
+                            let subdfn = items[items.length - 1];
+                            html += `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+                        } else if (typeof swaggerJSONdefinitions[dfn].properties[dfnProps]['items'] === 'object') {
+                            if (
+                                typeof swaggerJSONdefinitions[dfn].properties[dfnProps]['items']['$ref'] !== 'undefined'
+                            ) {
+                                let items = swaggerJSONdefinitions[dfn].properties[dfnProps]['items']['$ref'].split(
+                                    '/'
+                                );
+                                let subdfn = items[items.length - 1];
+                                html += `See <b><a href='#${subdfn}'>${subdfn}</a></b> in the <b>Definitions</b> section for more details.`;
+                            }
+                        }
+                    } else {
+                        html +=
+                            typeof swaggerJSONdefinitions[dfn].properties[dfnProps].description !== 'undefined'
+                                ? swaggerJSONdefinitions[dfn].properties[dfnProps].description
+                                : '';
+                    }
+
+                    html += '</td>';
+                }
+            }
+
+            let isRequired = false;
+            if (swaggerJSONdefinitions[dfn].required != null) {
+                isRequired = swaggerJSONdefinitions[dfn].required.indexOf(dfnProps) !== -1;
+            }
+            html += "       <td>" + (isRequired == true ? 'Yes' : 'No') + '</td>';
+
+
+            if (swaggerJSONdefinitions[dfn].properties[dfnProps].minLength != null) {
+                html += "       <td>" + swaggerJSONdefinitions[dfn].properties[dfnProps].minLength + '</td>';
+            } else {
+                html += "       <td></td>";
+            }
+
+            if (swaggerJSONdefinitions[dfn].properties[dfnProps].maxLength != null) {
+                html += "       <td>" + swaggerJSONdefinitions[dfn].properties[dfnProps].maxLength + '</td>';
+            } else {
+                html += "       <td></td>";
+            }
+
+            if (swaggerJSONdefinitions[dfn].properties[dfnProps].enum != null) {
+                html += "       <td style=\"word-break:break-all;\">" + swaggerJSONdefinitions[dfn].properties[dfnProps].enum + '</td>';
+            } else {
+                html += "       <td></td>";
+            }
+
+            if (swaggerJSONdefinitions[dfn].properties[dfnProps].pattern != null) {
+                html += "       <td style=\"word-break:break-all;\">" + swaggerJSONdefinitions[dfn].properties[dfnProps].pattern + '</td>';
+            } else {
+                html += "       <td></td>";
+            }
+
+
+            html += '   </tr>';
+
+            index++;
+        }
+    }
+    html += '   </tbody>';
+    html += '</table>';
+    return html;
+}
+
+function renderDefinition2(minimal, dfn, swaggerJSONdefinitions) {
+    let html = ` 
+    <table class='table-margin'>
+       <thead>
+        <tr>
                <th class='th-heading'><b>Name</b></td>
                <th class='th-heading-small'><b>Type</b></td>
                ${minimal ? '' : "           <th class='th-heading'><b>Description</b></td>"}
@@ -767,7 +907,7 @@ function renderSchemaItems(schemaItems, swaggerDefinitions) {
         html += '<br />';
         html += '<br />';
 
-        html += renderDefinition(true, dfn, swaggerDefinitions);
+        html += renderDefinition2(true, dfn, swaggerDefinitions);
     } else if (typeof schemaItems.type !== 'undefined') {
         html += 'Items type: ' + schemaItems.type;
     }
